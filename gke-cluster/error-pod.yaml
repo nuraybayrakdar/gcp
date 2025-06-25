@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-error-pod
+  namespace: nginx-app
+spec:
+  containers:
+  - name: nginx
+    image: nginx:latest
+    command: [ "sh", "-c", "echo 'Starting nginx'; exit 1" ]
+  restartPolicy: Always

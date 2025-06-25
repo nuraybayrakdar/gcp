@@ -1,0 +1,70 @@
+apiVersion: elasticsearch.k8s.elastic.co/v1
+kind: Elasticsearch
+metadata:
+  name: elasticsearch-test
+  namespace: efk
+spec:
+  version: 8.17.0
+  http:
+    service:
+      spec:
+        type: ClusterIP
+  transport:
+    service:
+      spec:
+        type: ClusterIP
+  updateStrategy:
+    changeBudget:
+      maxSurge: 1
+      maxUnavailable: 0
+  nodeSets:
+  - name: master
+    count: 1
+    config:
+      node.roles: [ "master" ]
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+        storageClassName: standard-rwo
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1.5Gi"
+              cpu: "1"
+  - name: data
+    count: 2
+    config:
+      node.roles: [ "data" ]
+    volumeClaimTemplates:
+    - metadata:
+        name: elasticsearch-data
+      spec:
+        accessModes:
+        - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: standard-rwo
+    podTemplate:
+      spec:
+        containers:
+        - name: elasticsearch
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1"
